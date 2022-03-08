@@ -1,0 +1,109 @@
+hush
+
+duplicate 10 "hello .. I express sound by code .. "
+
+do 
+    let trackio = do  
+        p "brk" silence 
+        -- p "pad2" silence -- previous
+        -- p "d1" silence -- second
+        p "bass2" silence
+        p "bass" silence
+        p "cl" silence
+        p "" silence 
+    let fx = 
+            void
+            .whenmod 8 0 (
+                void
+                .(# hpf (fast 0.5 $ "50 .. 1" * "100"))
+                .(# hpq 0.1)
+            )
+            .whenmod 8 7 (
+                void
+                .filter "lpf" 30 (1)
+            )
+            -- .st "1*16"
+        fx' =
+            void
+            .whenmod 4 0 (
+                void
+                .off 0.25 (stut' 2 ("<6>"/32) (
+                    void
+                    .(|* speed "-1")
+                    .(|* gain 0.9)
+                ))
+            )         
+            -- . swng
+        func =
+            void
+            -- .func1
+            .func2
+            -- .func3
+    ---
+    ---
+    let sub = 
+            void 
+            .send2 
+            . fx'
+    setcps (130/240)
+    p "d1"
+        $ (
+            void
+            .func 
+            .fx
+            -- .someCycles (filter "lpf" 80 "1*2")
+            .off (3/16) (stut' 4 (6/32) (
+                degradeBy 0.25
+                .(#speed "1 .. 0.5 .. -1") 
+                .chop "2 1 2 -2"
+            ))
+            .every 4 (0.25 <~)
+            -- .somecycles (ply 2)
+            .func
+            -- .every 2 (st "{1*4}%2")
+        )
+        $ stack [
+            ""
+            ,big 0.6 1 $ "[bd ~] [~ bd] [~ cp] [bd]" # n 0 # orbit 7 
+            -- ,every 3 (sub) $ func $ big 0.2 1 $every 1 (0.5 <~) $ st "1(8,8,3)" $ slice 16 (irand 32) $ la 8 $ "tokyo" # n 4 #r 0.4 #hpf 300 #orbit 1 -- # l ("0.1" * "{3 9 2 9 2 5 9 5}%16") -- # r 0.8-- # cut 1
+            ,big 0.1 0.9  $ slice 16 "0 .. 15" $ la 4  $ "jj1" # n 57 # l 0.8 -- # speed ("1 2 " |*| "1 .. 2 ")
+        ]# l 0.8 #r 0.3
+    p "bass2"
+        $(
+            void
+            .fx
+            -- .autopan
+            -- .roomunit ("{5}%8 " * "0.1") 0.5 ("{5}%8 "* "0.1")
+            -- .delunit ("{1 4 1 6 1 5 1}%4" * 0.1) ("<1>"/64) ("{5}%4 "* "0.1")
+            .big 0.4 1
+        )
+        -- $st "{1*4}%4"
+        $(st "[1 . 0 1 ][0 1 . 0 1 ][1 . 0 1][ 1 0 . 0 1 ]")
+        $ "supersaw"
+        # voice 0 # pitch1 ("0.5") # lfo "[20 1]*4" # rate "[2 0.2]*4" # resonance 0.4 # decay "0.4"
+        #nt (slow "1 0.5 1 1" ("-3 -3 -3 2" |+| ("-12" |*| "2" ) |+| "-7" )) # l ("0.1" * "{8}%4")
+        -- # nt (slow 1 ("<9>" |+| ("-12" |*| 3 ) |+| "0" )) -- (2 = iv) 10 9 2 2 or 10 9 12 14
+        # l 0.5
+        #orbit 2
+    p "pad2"
+        $ (
+            void
+            .func
+            -- .filter "lpf" 80 (2/8)
+            .fx
+            -- . roomunit 0.1 0.9 0.9
+            .every 3 (sub)
+        )
+        $ stack [
+            ""
+           ,big 0.2 1 
+           $ slice 16 "0 .. 15" 
+           $ la "2" $ "jj2" # n 34 --  # r ("1*0.3") # l 0.5
+        ] 
+        # l 0.8
+        # r 0.2
+        -- # crush "[4 .. 8]*4" 
+        # orbit 3
+    trackio
+
+    duplicate 5 ""
